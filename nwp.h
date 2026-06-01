@@ -27,6 +27,7 @@
 #define APDLE "APDLE"
 #define REGST "REGST"
 #define LOGOT "LOGOT"
+#define FMTAD "FMTAD"
 
 #define OK_STAT "+OK"
 #define ER_STAT "-ERR"
@@ -62,3 +63,4 @@ extern int AppUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvB
 extern int AppDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 extern int Register(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 extern int Logout(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);

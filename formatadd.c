@@ -1,16 +1,16 @@
-#include "appadd.h"
+#include "formatadd.h"
 #include "nwp.h"
 
-int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
+int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
   PGresult *res;
   char *sqlBegin = "BEGIN", *sqlCommit = "COMMIT", *sqlRollback = "ROLLBACK";
   char sql[SQLSIZE];
   char comm[BUFSIZE];
   int resultRows, n, sendLen;
-  char format_id[IDSIZE]; 
-  char format_text[TEXTSIZE];
+  char format_id[IDSIZE], format_name[NAMESIZE]; 
+  char format_text[TEXTSIZE], role[ROLESIZE];
 
-  sscanf(recvBuf, "%s %s %[^\n]", comm, format_id, format_text);
+  sscanf(recvBuf, "%s %s %s %[^\n]", comm, format_id, format_name, role, format_text);
 
   if(threadParam -> session.is_login != 1){
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_1066, ENTER);
@@ -28,9 +28,11 @@ int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *
   PQexec(threadParam -> con, sqlBegin);
 
   snprintf(sql, SQLSIZE,
-           "INSERT INTO apps (format_id, user_id, submitted_data) "
-           "VALUES ('%s', '%s', '%s')",
-           format_id, threadParam -> session.user_id, format_text);
+           "INSERT INTO formats (format_id, format_name, data_fields) "
+           "VALUES ('%s', '%s', '%s'); "
+           "INSERT INTO format_permissions (format_id, role) "
+           "VALUES ('%s' '%s')",
+           format_id, format_name, format_text, format_id, role);
   printf("[%s]\n", sql);
   res = PQexec(threadParam -> con, sql);
   if(PQresultStatus(res) != PGRES_COMMAND_OK){

@@ -48,6 +48,9 @@ void *controller(void* __arg)
         else if(strcmp(comm, LOGOT) == 0){
             flag = Logout(selfId, threadParam, recvBuf, sendBuf);
         }
+        else if(strcmp(comm, FMTAD) == 0){
+            flag ~ FormatAdd(selfId, threadParam, recvBuf, sendBuf);
+        }
         else{
             flag = -1;
             sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_2, ENTER);
