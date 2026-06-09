@@ -1,15 +1,15 @@
 #include "nwp.h"
 
-int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
+int Notice(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){ 
   PGresult *res;
-  char *sqlBegin = "BEGIN", *sqlCommit = "COMMIT", *sqlRollback = "ROLLBACK";
+  char *sqlBegin = "BEGIN", *sqlCommit = "COMMIT", *sqlRollback = "ROLLBACK"; 
   char sql[SQLSIZE];
   char comm[BUFSIZE];
-  int resultRows, n, sendLen;
-  char format_id[IDSIZE]; 
-  char format_text[TEXTSIZE];
+  int sendLen;
+  char format_id[IDSIZE];
+  char notice[NOTICESIZE];
 
-  sscanf(recvBuf, "%s %s %[^\n]", comm, format_id, format_text);
+  sscanf(recvBuf, "%s %s %s", comm, format_id, notice);
 
   if(threadParam -> session.is_login != 1){
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_2002, ENTER);
@@ -24,24 +24,32 @@ int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *
     return -1;
   }
 
+  if(strcmp(notice, "realtime") != 0 && strcmp(notice, "daily") != 0 && strcmp(notice, "weekly") != 0){
+    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_3002, ENTER);
+    printf("%s", sendBuf);
+    return -1;
+  }
+
   PQexec(threadParam -> con, sqlBegin);
 
   snprintf(sql, SQLSIZE,
-           "INSERT INTO apps (format_id, user_id, submitted_data) "
-           "VALUES ('%s', '%s', '%s')",
-           format_id, threadParam -> session.user_id, format_text);
+           "UPDATE formats SET notify_freq = '%s' "
+           "WHERE format_id = '%s'",
+           notice, format_id);
   printf("[%s]\n", sql);
   res = PQexec(threadParam -> con, sql);
+  
   if(PQresultStatus(res) != PGRES_COMMAND_OK){
-    printf("%s", PQresultErrorMessage(res));
+    printf("%s\n", PQresultErrorMessage(res));
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4004, ENTER);
     printf("%s", sendBuf);
     PQexec(threadParam -> con, sqlRollback);
     PQclear(res);
     return -1;
   }
+
   if(atoi(PQcmdTuples(res)) != 1){
-    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4004, ENTER);
+    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4001, ENTER);
     printf("%s", sendBuf);
     PQexec(threadParam -> con, sqlRollback);
     PQclear(res);
@@ -50,7 +58,7 @@ int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *
 
   PQexec(threadParam -> con, sqlCommit);
 
-  sendLen = snprintf(sendBuf, BUFSIZE, "%s %s%s", OK_STAT, format_id, ENTER);
+  sendLen = snprintf(sendBuf, BUFSIZE, "%s %s %s", OK_STAT, format_id, ENTER);
   printf("%s", sendBuf);
   send(threadParam -> soc, sendBuf, sendLen, 0);
 

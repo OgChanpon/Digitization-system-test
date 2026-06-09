@@ -1,13 +1,13 @@
 #include "nwp.h"
 
-int AppDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
+int UserDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
   PGresult *res;
   char sql[SQLSIZE];
   char comm[BUFSIZE];
-  int resultRows, n, sendLen;
-  char target_date[DATESIZE];
+  int sendLen;
+  char target_id[IDSIZE];
 
-  sscanf(recvBuf, "%s %s", comm, target_date);
+  sscanf(recvBuf, "%s %s", comm, target_id);
 
   if(threadParam -> session.is_login != 1){
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_2002, ENTER);
@@ -23,10 +23,9 @@ int AppDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
   }
 
   snprintf(sql, SQLSIZE,
-           "DELETE FROM apps "
-           "WHERE created_at < '%s' "
-           "AND status IN ('approved', 'rejected')",
-           target_date);
+           "DELETE FROM users "
+           "WHERE user_id = '%s'",
+           target_id);
   printf("[%s]\n", sql);
   res = PQexec(threadParam -> con, sql);
   if(PQresultStatus(res) != PGRES_COMMAND_OK){
@@ -40,11 +39,12 @@ int AppDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
   int deleted_count = atoi(PQcmdTuples(res));
   if(deleted_count == 0){
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4001, ENTER);
+    printf("%s", sendBuf);
     send(threadParam -> soc, sendBuf, strlen(sendBuf), 0);
     PQclear(res);
     return -1;
   }
-  sendLen = snprintf(sendBuf, BUFSIZE, "%s %d records deleted.%s", OK_STAT, deleted_count, ENTER);
+  sendLen = snprintf(sendBuf, BUFSIZE, "%s %d records deleted.%s", OK_STAT, target_id, ENTER);
   printf("%s", sendBuf);
   send(threadParam -> soc, sendBuf, sendLen, 0);
 

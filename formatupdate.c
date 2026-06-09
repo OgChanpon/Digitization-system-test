@@ -1,16 +1,15 @@
 #include "nwp.h"
 
-int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
+int FormatUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){ 
   PGresult *res;
-  char *sqlBegin = "BEGIN", *sqlCommit = "COMMIT", *sqlRollback = "ROLLBACK";
+  char *sqlBegin = "BEGIN", *sqlCommit = "COMMIT", *sqlRollback = "ROLLBACK"; 
   char sql[SQLSIZE];
   char comm[BUFSIZE];
   int resultRows, n, sendLen;
-  char format_id[IDSIZE], format_name[NAMESIZE]; 
-  char format_text[TEXTSIZE], role[ROLESIZE];
-  char notice[NOTICESIZE];
+  char format_id[IDSIZE];
+  char format_text[TEXTSIZE]; 
 
-  sscanf(recvBuf, "%s %s %s %s  %s %[^\n]", comm, format_id, format_name, role, notice, format_text);
+  sscanf(recvBuf, "%s %s %[^\n]", comm, format_id, format_text);
 
   if(threadParam -> session.is_login != 1){
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_2002, ENTER);
@@ -25,31 +24,17 @@ int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
     return -1;
   }
 
-  if(strcmp(notice, "realtime") != 0 && strcmp(notice, "daily") != 0 && strcmp(notice, "weekly") != 0){
-    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_3002, ENTER);
-    printf("%s", sendBuf);
-    return -1;
-  }
-
   PQexec(threadParam -> con, sqlBegin);
 
   snprintf(sql, SQLSIZE,
-           "INSERT INTO formats (format_id, format_name, data_fields, notify_freq) "
-           "VALUES ('%s', '%s', '%s', '%s'); "
-           "INSERT INTO format_permissions (format_id, role) "
-           "VALUES ('%s', '%s')",
-           format_id, format_name, format_text, notice, format_id, role);
+           "UPDATE formats SET data_fields = '%s' "
+           "WHERE format_id = '%s'",
+           format_text, format_id);
   printf("[%s]\n", sql);
   res = PQexec(threadParam -> con, sql);
+  
   if(PQresultStatus(res) != PGRES_COMMAND_OK){
-    printf("%s", PQresultErrorMessage(res));
-    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4002, ENTER);
-    printf("%s", sendBuf);
-    PQexec(threadParam -> con, sqlRollback);
-    PQclear(res);
-    return -1;
-  }
-  if(atoi(PQcmdTuples(res)) != 1){
+    printf("%s\n", PQresultErrorMessage(res));
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4004, ENTER);
     printf("%s", sendBuf);
     PQexec(threadParam -> con, sqlRollback);
@@ -57,14 +42,32 @@ int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
     return -1;
   }
 
+  if(atoi(PQcmdTuples(res)) != 1){
+    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4001, ENTER); // データ不在エラー
+    printf("%s", sendBuf);
+    PQexec(threadParam -> con, sqlRollback);
+    PQclear(res);
+    return -1;
+  }
+
   PQexec(threadParam -> con, sqlCommit);
+  PQclear(res);
+
+  char format_name[50] = "Unknown_Format";
+  
+  snprintf(sql, SQLSIZE, "SELECT format_name FROM formats WHERE format_id = '%s'", format_id);
+  res = PQexec(threadParam -> con, sql);
+  if(PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1){
+    strcpy(format_name, PQgetvalue(res, 0, 0));
+  }
+  PQclear(res);
 
   char filename[FILENAMESIZE];
   snprintf(filename, sizeof(filename), "%s_template.tex", format_id);
   
   FILE *fp = fopen(filename, "w");
   if(fp != NULL){
-    fprintf(fp, "%% --- 自動生成された %s のテンプレート ---\n", format_id);
+    fprintf(fp, "%% --- 更新された %s のテンプレート ---\n", format_id);
     fprintf(fp, "\\documentclass[a4paper,11pt]{ltjsarticle}\n");
     fprintf(fp, "\\begin{document}\n");
     fprintf(fp, "\\begin{center}\n");
@@ -79,7 +82,7 @@ int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
     int count = 1;
     while(token != NULL){
       fprintf(fp, "\\noindent\n");
-      fprintf(fp, "{\\bf %s:} #DATA_%d# \\\\\n", token, count); 
+      fprintf(fp, "{\\bf %s:} #DATA_%d# \\\\\n", token, count);
       fprintf(fp, "\\vspace{1em}\n");
       token = strtok(NULL, ",");
       count++;
@@ -87,12 +90,7 @@ int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
 
     fprintf(fp, "\\end{document}\n");
     fclose(fp);
-    printf("[TEMPLATE GENERATED] %s\n", filename);
-  } else {
-    printf("[ERROR] テンプレートファイル %s の作成に失敗しました。\n", filename);
-    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_1003, ENTER);
-    send(threadParam -> soc, sendBuf, strlen(sendBuf), 0);
-    return -1; 
+    printf("[TEMPLATE UPDATED] %s\n", filename);
   }
 
   sendLen = snprintf(sendBuf, BUFSIZE, "%s %s%s", OK_STAT, format_id, ENTER);

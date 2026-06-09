@@ -1,15 +1,15 @@
 #include "nwp.h"
 
-int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
+int UserRegister(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
   PGresult *res;
   char *sqlBegin = "BEGIN", *sqlCommit = "COMMIT", *sqlRollback = "ROLLBACK";
   char sql[SQLSIZE];
   char comm[BUFSIZE];
   int resultRows, n, sendLen;
-  char format_id[IDSIZE]; 
-  char format_text[TEXTSIZE];
+  char user_name[NAMESIZE], user_id[IDSIZE]; 
+  char password[PASSSIZE], role[ROLESIZE];
 
-  sscanf(recvBuf, "%s %s %[^\n]", comm, format_id, format_text);
+  sscanf(recvBuf, "%s %s %s %s %[^\n]", comm, user_id, password, role, user_name);
 
   if(threadParam -> session.is_login != 1){
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_2002, ENTER);
@@ -18,23 +18,29 @@ int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *
     return -1;
   }
 
-  if(strcmp(threadParam -> session.role, "student") != 0 && strcmp(threadParam -> session.role, "teacher") != 0 && strcmp(threadParam -> session.role, "admin") != 0){
+  if(strcmp(threadParam -> session.role, "admin") != 0){
     snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_2003, ENTER);
     printf("%s", sendBuf);
     return -1;
   }
 
-  PQexec(threadParam -> con, sqlBegin);
+  if(strcmp(role, "student") != 0 && strcmp(role, "teacher") != 0 && strcmp(role, "admin") != 0){
+    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_3002, ENTER);
+    printf("%s", sendBuf);
+    return -1;
+  }
 
+  PQexec(threadParam -> con, sqlBegin);
   snprintf(sql, SQLSIZE,
-           "INSERT INTO apps (format_id, user_id, submitted_data) "
-           "VALUES ('%s', '%s', '%s')",
-           format_id, threadParam -> session.user_id, format_text);
+           "INSERT INTO users (user_id, password, role, name) "
+           "VALUES ('%s', '%s', '%s', '%s')",
+           user_id, password, role, user_name);
   printf("[%s]\n", sql);
   res = PQexec(threadParam -> con, sql);
+
   if(PQresultStatus(res) != PGRES_COMMAND_OK){
     printf("%s", PQresultErrorMessage(res));
-    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4004, ENTER);
+    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_4002, ENTER);
     printf("%s", sendBuf);
     PQexec(threadParam -> con, sqlRollback);
     PQclear(res);
@@ -50,7 +56,7 @@ int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *
 
   PQexec(threadParam -> con, sqlCommit);
 
-  sendLen = snprintf(sendBuf, BUFSIZE, "%s %s%s", OK_STAT, format_id, ENTER);
+  sendLen = snprintf(sendBuf, BUFSIZE, "%s %s%s", OK_STAT, user_name, ENTER);
   printf("%s", sendBuf);
   send(threadParam -> soc, sendBuf, sendLen, 0);
 

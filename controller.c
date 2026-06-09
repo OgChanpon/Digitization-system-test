@@ -24,36 +24,54 @@ void *controller(void* __arg)
         if(strcmp(comm, LOGIN) == 0){
             flag = Login(selfId, threadParam, recvBuf, sendBuf);
         }
-        else if(strcmp(comm, FMTGT) == 0){
+        else if(strcmp(comm, FMTGET) == 0){
             flag = FormatGet(selfId, threadParam, recvBuf, sendBuf);
         }
-        else if(strcmp(comm, APPAD) == 0){
+        else if(strcmp(comm, APPADD) == 0){
             flag = AppAdd(selfId, threadParam, recvBuf, sendBuf);
         }
-        else if(strcmp(comm, APLGT) == 0){
+        else if(strcmp(comm, APPLS) == 0){
             flag = AppGet(selfId, threadParam, recvBuf, sendBuf);
         }
-        else if(strcmp(comm, APDET) == 0){
+        else if(strcmp(comm, APPDET) == 0){
             flag = AppDetail(selfId, threadParam, recvBuf, sendBuf);
         }
-        else if(strcmp(comm, APUPD) == 0){
+        else if(strcmp(comm, APPUPD) == 0){
             flag = AppUpdate(selfId, threadParam, recvBuf, sendBuf);
         }
-        else if(strcmp(comm, APDLE) == 0){
+        else if(strcmp(comm, APPDEL) == 0){
             flag = AppDelete(selfId, threadParam, recvBuf, sendBuf);  
         }
-        else if(strcmp(comm, REGST) == 0){
-            flag = Register(selfId, threadParam, recvBuf, sendBuf);
+        else if(strcmp(comm, USRREG) == 0){
+            flag = UserRegister(selfId, threadParam, recvBuf, sendBuf);
         }
-        else if(strcmp(comm, LOGOT) == 0){
+        else if(strcmp(comm, LOGOUT) == 0){
             flag = Logout(selfId, threadParam, recvBuf, sendBuf);
         }
-        else if(strcmp(comm, FMTAD) == 0){
-            flag ~ FormatAdd(selfId, threadParam, recvBuf, sendBuf);
+        else if(strcmp(comm, FMTADD) == 0){
+            flag = FormatAdd(selfId, threadParam, recvBuf, sendBuf);
+        }
+        else if(strcmp(comm, FMTUPD) == 0){
+            flag = FormatUpdate(selfId, threadParam, recvBuf, sendBuf);
+        }
+        else if(strcmp(comm, APPCHK) == 0){
+            flag = AppCheck(selfId, threadParam, recvBuf, sendBuf);
+        }
+        else if(strcmp(comm, NOTICE) == 0){
+            flag = Notice(selfId, threadParam, recvBuf, sendBuf);
+        }
+        else if(strcmp(comm, USRDEL) == 0){
+            flag = UserDelete(selfId, threadParam, recvBuf, sendBuf);
+        }
+        else if(strcmp(comm, USRUPD) == 0){
+            flag = UserUpdate(selfId, threadParam, recvBuf, sendBuf);
+        }
+        else if(strcmp(comm, APPDWN) == 0){
+            flag = AppDownload(selfId, threadParam, recvBuf, sendBuf);
         }
         else{
             flag = -1;
-            sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_2, ENTER);
+            sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_1002, ENTER);
         }
 
         if (flag < 0) {

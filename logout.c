@@ -1,4 +1,3 @@
-#include "logout.h"
 #include "nwp.h"
 
 int Logout(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
@@ -8,7 +7,7 @@ int Logout(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *
   sscanf(recvBuf, "%s", comm);
 
   if(threadParam -> session.is_login != 1){
-    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_1041, ENTER);
+    snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_2002, ENTER);
     send(threadParam -> soc, sendBuf, strlen(sendBuf), 0);
     printf("%s", sendBuf);
     return -1;
