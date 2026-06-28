@@ -1,4 +1,4 @@
-#include "nwp.h"
+#include "server.h"
 
 int Logout(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
   char comm[BUFSIZE];

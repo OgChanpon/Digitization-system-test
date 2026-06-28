@@ -1,4 +1,4 @@
-#include "nwp.h"
+#include "server.h"
 
 void service_start(int __lsoc);
 

@@ -1,4 +1,4 @@
-#include "nwp.h"
+#include "server.h"
 
 int receive_message(int __s, char *__buf, int __maxlen){
   int recv_total = 0;

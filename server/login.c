@@ -1,4 +1,4 @@
-#include "nwp.h"
+#include "server.h"
 
 int Login(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf){
   PGresult *res;

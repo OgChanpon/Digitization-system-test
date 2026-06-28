@@ -1,5 +1,5 @@
-#ifndef _NWP_H_
-#define _NWP_H_
+#ifndef _SERVER_H_
+#define _SERVER_H_
 
 #include<arpa/inet.h>
 #include<netinet/in.h>
@@ -15,6 +15,7 @@
 #include<unistd.h>
 
 #define BUFSIZE 4096
+#define SERVER_IP "127.0.0.1"
 #define PORT 10000
 #define ENTER "\n"
 #define DATA_END ".\n"
@@ -30,6 +31,7 @@
 #define NOTICESIZE 20
 #define FILENAMESIZE 128
 #define DATESIZE 16
+#define DATASIZE 1024
 
 //コマンド定義
 #define LOGIN "LOGIN"
@@ -96,20 +98,20 @@ extern int setup_listen(u_short __port);
 extern void *controller(void *arg);
 
 extern int Login(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int FormatGet(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int Logout(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int UserRegister(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int UserUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int UserDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 extern int AppGet(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 extern int AppDetail(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int AppAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 extern int AppUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 extern int AppDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int UserRegister(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int Logout(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int FormatUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int AppDownload(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 extern int AppCheck(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 extern int Notice(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int UserDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int UserUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
-extern int AppDownload(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int FormatGet(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
+extern int FormatUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *sendBuf);
 
 #endif

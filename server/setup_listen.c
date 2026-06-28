@@ -1,4 +1,4 @@
-#include "nwp.h"
+#include "server.h"
 
 int setup_listen(u_short __port){
   struct sockaddr_in server;
