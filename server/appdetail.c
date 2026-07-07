@@ -78,10 +78,6 @@ int AppDetail(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
 
     fclose(fp_fmt);
     fclose(fp_data);
-
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
     
     printf("📡 申請詳細 [%s] をハイブリッド結合して送信しました\n", app_id);
 

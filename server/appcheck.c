@@ -42,10 +42,6 @@ int AppCheck(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char
         return -1;
     }
     PQclear(res);
-
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
     
     printf("✨ 申請 [%s] のステータスを [%s] に更新しました！(処理者: %s)\n", 
            app_id, status, threadParam->session.user_id);

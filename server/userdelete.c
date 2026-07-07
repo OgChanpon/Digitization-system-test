@@ -35,10 +35,6 @@ int UserDelete(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, ch
         return -1;
     }
     PQclear(res);
-
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
     
     printf("🗑️ ユーザー [%s] をシステムから削除しました\n", user_id);
 

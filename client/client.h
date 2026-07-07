@@ -7,6 +7,7 @@
 #include<string.h>
 #include<sys/socket.h>
 #include<unistd.h>
+#include<sys/select.h>
 
 #define BUFSIZE 4096
 #define SERVER_IP "127.0.0.1"

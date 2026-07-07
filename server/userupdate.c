@@ -38,10 +38,6 @@ int UserUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, ch
     }
     PQclear(res);
 
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
-    
     printf("✨ ユーザー [%s] の情報を更新しました\n", user_id);
 
     return 0;

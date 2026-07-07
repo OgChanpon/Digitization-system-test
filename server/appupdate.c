@@ -60,10 +60,6 @@ int AppUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
         token = strtok(NULL, ",");
     }
     fclose(fp);
-
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
     
     printf("✨ 申請 [%s] のデータを上書き修正しました\n", app_id);
 

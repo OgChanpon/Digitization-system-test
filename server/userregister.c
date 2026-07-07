@@ -26,10 +26,6 @@ int UserRegister(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, 
     }
     PQclear(res);
 
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
-    
     printf("✨ 新規ユーザー [%s: %s] (権限: %s) を登録しました\n", user_id, user_name, role);
 
     return 0;

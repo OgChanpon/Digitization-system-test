@@ -44,10 +44,6 @@ int FormatAdd(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
         token = strtok(NULL, ",");
     }
     fclose(fp);
-
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
     
     printf("✨ 新様式 [%s: %s] を %s に保存しました！\n", format_id, format_name, filename);
 

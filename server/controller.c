@@ -74,15 +74,16 @@ void *controller(void* __arg)
             sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_1002, ENTER);
         }
 
-        if (flag < 0) {
-            sendLen = strlen(sendBuf);
-            send(threadParam->soc, sendBuf, sendLen, 0);
-            printf("[C_THREAD %ld] SEND=> %s", selfId, sendBuf);
-        }
-
-        sendLen = sprintf(sendBuf, "%s", DATA_END);
+        sendLen = strlen(sendBuf);
         send(threadParam->soc, sendBuf, sendLen, 0);
         printf("[C_THREAD %ld] SEND=> %s\n", selfId, sendBuf);
+
+        if (strstr(sendBuf, DATA_END) == NULL) {
+            char end_msg[32];
+            snprintf(end_msg, sizeof(end_msg), "\n%s", DATA_END);
+            send(threadParam->soc, end_msg, strlen(end_msg), 0);
+            printf("[C_THREAD %ld] SEND(Lifeline)=> %s\n", selfId, end_msg);
+        }
     }
 
     printf("[C_THREAD %ld] CONTROLLER END (%d)\n\n", selfId, threadParam->soc);

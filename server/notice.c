@@ -52,10 +52,6 @@ int Notice(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, char *
         }
         PQclear(res);
     }
-
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
     
     printf("📡 ユーザー [%s] に通知情報を送信しました\n", threadParam->session.user_id);
 

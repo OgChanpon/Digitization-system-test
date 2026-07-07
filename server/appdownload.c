@@ -111,10 +111,6 @@ int AppDownload(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, c
 
     fclose(fp_fmt);
     fclose(fp_data);
-
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
     
     printf("📡 申請 [%s] を %s 形式で生成・送信しました\n", app_id, file_type);
 

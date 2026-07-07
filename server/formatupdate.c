@@ -54,10 +54,6 @@ int FormatUpdate(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, 
         token = strtok(NULL, ",");
     }
     fclose(fp);
-
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
     
     printf("✨ 様式 [%s: %s] の定義を更新しました\n", format_id, format_name);
 

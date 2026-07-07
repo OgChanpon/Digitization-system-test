@@ -55,10 +55,6 @@ int FormatGet(pthread_t selfId, ThreadParameter *threadParam, char *recvBuf, cha
 
     PQclear(res);
 
-    char ok_msg[BUFSIZE];
-    snprintf(ok_msg, sizeof(ok_msg), "%s\n", OK_STAT);
-    send(threadParam->soc, ok_msg, strlen(ok_msg), 0);
-    
     printf("📡 様式データ (全 %d 件) を結合して送信しました\n", rows);
 
     return 0;

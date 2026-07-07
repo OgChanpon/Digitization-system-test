@@ -105,6 +105,24 @@ int main(){
             break;
         }
 
+        if(server_soc != -1){
+            struct timeval tv;
+            fd_set readfds;
+            char junk[BUFSIZE];
+            while(1){
+                FD_ZERO(&readfds);
+                FD_SET(server_soc, &readfds);
+                tv.tv_sec = 0; 
+                tv.tv_usec = 0;
+                
+                if(select(server_soc + 1, &readfds, NULL, NULL, &tv) > 0){
+                    recv(server_soc, junk, sizeof(junk), 0);
+                } else {
+                    break;
+                }
+            }
+        }
+
         if(!is_login){
             if(choice == 1){
                 Do_Login();
